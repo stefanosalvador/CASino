@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'useragent'
 
 describe CASino::User do
   let(:user) {  FactoryGirl.create :user }
