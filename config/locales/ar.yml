@@ -2,6 +2,7 @@ ar:
   login_credential_acceptor:
     invalid_login_ticket: "لم يتضمّن طلب تسجيل دخولك شهادة تسجيل صالحة."
     invalid_login_credentials: "اسم المستخدم أو كلمة المرور غير صحيحة."
+    user_is_locked: "اسم المستخدم أو كلمة المرور غير صحيحة."
   login:
     label_username: "اسم المستخدم"
     label_password: "كلمة المرور"

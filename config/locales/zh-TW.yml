@@ -2,6 +2,7 @@ zh-TW:
   login_credential_acceptor:
     invalid_login_ticket: "您的登錄請求沒有包含有效的登錄授權。"
     invalid_login_credentials: "用戶名或密碼錯誤"
+    user_is_locked: "用戶名或密碼錯誤"
   login:
     label_username: "用戶名"
     label_password: "密碼"

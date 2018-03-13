@@ -1,7 +1,8 @@
 fr:
   login_credential_acceptor:
     invalid_login_ticket: "La demande de connexion n'inclue pas un ticket de connexion valide."
-    invalid_login_credentials: "Nom d'utilisateur ou mot de passe incorrect."
+    invalid_login_credentials: "Nom d'utilisateur ou mot de passe incorrect ou l'utilisateur est bloqué."
+    user_is_locked: "Nom d'utilisateur ou mot de passe incorrect ou l'utilisateur est bloqué."
   login:
     label_username: "Nom d'utilisateur"
     label_password: "Mot de passe"

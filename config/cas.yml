@@ -1,4 +1,6 @@
 defaults: &defaults
+  max_failed_login_attempts: -1 # disabled
+  failed_login_lock_timeout: 5 # minutes a user gets locked for when using max_failed_login_attempts
   service_ticket:
     lifetime_unconsumed: 299
   authenticators:

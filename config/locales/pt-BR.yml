@@ -2,6 +2,7 @@ pt-BR:
   login_credential_acceptor:
     invalid_login_ticket: "Por favor, insira seus dados de acesso."
     invalid_login_credentials: "Usuário ou senha incorretos."
+    user_is_locked: "Usuário ou senha incorretos."
   login:
     label_username: "Usuário"
     label_password: "Senha"

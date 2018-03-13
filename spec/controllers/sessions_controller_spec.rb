@@ -186,8 +186,9 @@ describe CASino::SessionsController do
     context 'with a valid login ticket' do
       let(:login_ticket) { FactoryBot.create :login_ticket }
       let(:username) { 'testuser' }
-      let(:params) { { lt: login_ticket.ticket, username: username, password: 'wrrooonnng' } }
-      let!(:user) { FactoryBot.create :user, username: username }
+      let(:params) { { lt: login_ticket.ticket, username: username, password: 'wrrooonnng' }}
+      let(:locked_until) { nil }
+      let!(:user) { FactoryBot.create :user, authenticator: 'static', username: username, locked_until: locked_until }
 
       context 'with invalid credentials' do
         it 'renders the new template' do
@@ -206,6 +207,24 @@ describe CASino::SessionsController do
 
           expect(CASino::LoginAttempt.last.user).to eq user
           expect(CASino::LoginAttempt.last.successful).to eq false
+        end
+
+        it 'does not lock the user' do
+          expect do
+            post :create, params
+          end.to_not change { user.reload.locked? }
+        end
+
+        context 'when the maximum of failed login attempts is reached' do
+          before do
+            allow(CASino.config).to receive(:max_failed_login_attempts).and_return(1)
+          end
+
+          it 'deactivates the user' do
+            expect do
+              post :create, params
+            end.to change { user.reload.locked? }.from(false).to(true)
+          end
         end
       end
 
@@ -307,6 +326,8 @@ describe CASino::SessionsController do
           end
 
           context 'when the user does not exist yet' do
+            before { CASino::User.destroy_all }
+
             it 'generates exactly one user' do
               -> { post :create, **request_options }.should change(CASino::User, :count).by(1)
             end
@@ -354,6 +375,20 @@ describe CASino::SessionsController do
 
           it 'generates a ticket-granting ticket' do
             -> { post :create, **request_options }.should change(CASino::TicketGrantingTicket, :count).by(1)
+          end
+        end
+
+        context 'when the user is locked' do
+          let(:locked_until) { 5.minutes.from_now }
+
+          it 'renders the new template' do
+            post :create, params
+            expect(response).to render_template(:new)
+          end
+
+          it 'sets a flash to inform the user' do
+            post :create, params
+            expect(flash[:error]).to be_present
           end
         end
       end

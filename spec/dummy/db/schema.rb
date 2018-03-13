@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160502074450) do
+ActiveRecord::Schema.define(version: 20160810122605) do
 
   create_table "casino_auth_token_tickets", force: true do |t|
     t.string   "ticket",     null: false
@@ -119,6 +119,7 @@ ActiveRecord::Schema.define(version: 20160502074450) do
     t.text     "extra_attributes"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.datetime "locked_until"
   end
 
   add_index "casino_users", ["authenticator", "username"], name: "index_casino_users_on_authenticator_and_username", unique: true

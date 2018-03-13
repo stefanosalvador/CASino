@@ -1,4 +1,6 @@
 defaults: &defaults
+  max_failed_login_attempts: 5
+  failed_login_lock_timeout: 5
   login_ticket:
     lifetime: 600
   service_ticket:

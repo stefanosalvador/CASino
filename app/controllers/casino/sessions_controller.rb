@@ -21,6 +21,8 @@ class CASino::SessionsController < CASino::ApplicationController
   end
 
   def create
+    return show_login_error I18n.t('login_credential_acceptor.user_is_locked') if user_locked?(params[:username])
+
     validation_result = validate_login_credentials(params[:username], params[:password], current_authenticator_context)
     if !validation_result
       log_failed_login params[:username]
