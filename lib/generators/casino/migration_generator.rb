@@ -11,7 +11,7 @@ module CASino
     
     def install
       source_paths.each do |source_path|
-        Dir["#{source_path}/*.rb"].each do |filename|
+        Dir["#{source_path}/*.rb"].sort.each do |filename|
           migration_template File.basename(filename), "db/migrate/#{File.basename(filename).sub(/^\d+_/, '')}"
         end
       end
