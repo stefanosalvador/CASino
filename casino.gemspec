@@ -22,6 +22,7 @@ Gem::Specification.new do |s|
     s.signing_key = sign_file
     s.cert_chain  = ['casino-public_cert.pem']
   end
+  s.add_runtime_dependency 'bigdecimal', '1.3.5'
 
   s.add_runtime_dependency 'addressable', '>= 2.3'
   s.add_runtime_dependency 'faraday', '>= 0.8'
