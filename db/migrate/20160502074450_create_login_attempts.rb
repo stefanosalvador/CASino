@@ -1,4 +1,4 @@
-class CreateLoginAttempts < ActiveRecord::Migration[4.1]
+class CreateLoginAttempts < ActiveRecord::Migration[5.2]
   def change
     create_table :casino_login_attempts do |t|
       t.integer :user_id, null: true
