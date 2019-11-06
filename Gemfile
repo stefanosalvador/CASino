@@ -14,5 +14,6 @@ end
 gemspec
 
 platforms :ruby do
-  gem 'sqlite3', '>= 1.3'
+  #gem 'sqlite3', '>= 1.3'
+  gem 'sqlite3', '~> 1.3.6'
 end

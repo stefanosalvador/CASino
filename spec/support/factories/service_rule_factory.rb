@@ -1,4 +1,4 @@
-require 'factory_girl'
+require 'factory_bot'
 
 FactoryBot.define do
   factory :service_rule, class: CASino::ServiceRule do
@@ -10,7 +10,7 @@ FactoryBot.define do
     end
 
     trait :regex do
-      regex true
+      regex { true }
     end
   end
 end

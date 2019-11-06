@@ -1,4 +1,4 @@
-require 'factory_girl'
+require 'factory_bot'
 
 FactoryBot.define do
   factory :proxy_ticket, class: CASino::ProxyTicket do
@@ -11,7 +11,7 @@ FactoryBot.define do
     end
 
     trait :consumed do
-      consumed true
+      consumed { true }
     end
   end
 end

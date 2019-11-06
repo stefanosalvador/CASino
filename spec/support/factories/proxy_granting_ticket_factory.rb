@@ -1,4 +1,4 @@
-require 'factory_girl'
+require 'factory_bot'
 
 FactoryBot.define do
   factory :proxy_granting_ticket, class: CASino::ProxyGrantingTicket do

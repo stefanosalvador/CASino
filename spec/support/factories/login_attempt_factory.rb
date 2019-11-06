@@ -1,10 +1,10 @@
-require 'factory_girl'
+require 'factory_bot'
 
 FactoryBot.define do
   factory :login_attempt, class: CASino::LoginAttempt do
     user
-    successful true
-    user_ip '133.133.133.133'
-    user_agent 'TestBrowser'
+    successful { true }
+    user_ip { '133.133.133.133' }
+    user_agent { 'TestBrowser' } 
   end
 end
