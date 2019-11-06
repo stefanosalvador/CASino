@@ -1,11 +1,11 @@
 require 'spec_helper'
 
 describe CASino::User do
-  let(:user) {  FactoryGirl.create :user }
+  let(:user) {  FactoryBot.create :user }
 
-  let!(:ticket_granting_ticket) { FactoryGirl.create :ticket_granting_ticket, user: user }
-  let!(:two_factor_authenticator) { FactoryGirl.create :two_factor_authenticator, user: user }
-  let!(:login_attempt) { FactoryGirl.create :login_attempt, user: user }
+  let!(:ticket_granting_ticket) { FactoryBot.create :ticket_granting_ticket, user: user }
+  let!(:two_factor_authenticator) { FactoryBot.create :two_factor_authenticator, user: user }
+  let!(:login_attempt) { FactoryBot.create :login_attempt, user: user }
 
   subject { user }
 

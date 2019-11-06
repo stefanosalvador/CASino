@@ -111,7 +111,7 @@ describe CASino::TwoFactorAuthenticatorsController do
 
         context 'with a valid OTP' do
           before(:each) do
-            ROTP::TOTP.any_instance.should_receive(:verify_with_drift).with(otp, 30).and_return(true)
+            ROTP::TOTP.any_instance.should_receive(:verify).with(otp, drift_behind: 30).and_return(true)
           end
 
           it 'redirects to the session overview' do
@@ -149,7 +149,7 @@ describe CASino::TwoFactorAuthenticatorsController do
 
         context 'with an invalid OTP' do
           before(:each) do
-            ROTP::TOTP.any_instance.should_receive(:verify_with_drift).with(otp, 30).and_return(false)
+            ROTP::TOTP.any_instance.should_receive(:verify).with(otp, drift_behind: 30).and_return(false)
           end
 
           it 'rerenders the new page' do

@@ -13,6 +13,3 @@ end
 # Specify your gem's dependencies in groupify.gemspec
 gemspec
 
-platforms :ruby do
-  gem 'sqlite3', '>= 1.3'
-end

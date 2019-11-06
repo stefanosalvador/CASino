@@ -375,7 +375,7 @@ describe CASino::SessionsController do
 
         context 'with a valid OTP' do
           before(:each) do
-            ROTP::TOTP.any_instance.should_receive(:verify_with_drift).with(otp, 30).and_return(true)
+            ROTP::TOTP.any_instance.should_receive(:verify).with(otp, drift_behind: 30).and_return(true)
           end
 
           it 'redirects to the service' do
@@ -417,7 +417,7 @@ describe CASino::SessionsController do
 
         context 'with an invalid OTP' do
           before(:each) do
-            ROTP::TOTP.any_instance.should_receive(:verify_with_drift).with(otp, 30).and_return(false)
+            ROTP::TOTP.any_instance.should_receive(:verify).with(otp, drift_behind: 30).and_return(false)
           end
 
           it 'renders the validate_otp template' do

@@ -8,7 +8,7 @@ module CASino::TwoFactorAuthenticatorProcessor
       CASino::ValidationResult.new 'INVALID_AUTHENTICATOR', 'Authenticator does not exist or expired', :warn
     else
       totp = ROTP::TOTP.new(authenticator.secret)
-      if totp.verify_with_drift(otp, CASino.config.two_factor_authenticator[:drift])
+      if totp.verify(otp, drift_behind: CASino.config.two_factor_authenticator[:drift])
         CASino::ValidationResult.new
       else
         CASino::ValidationResult.new 'INVALID_OTP', 'One-time password not valid', :warn
