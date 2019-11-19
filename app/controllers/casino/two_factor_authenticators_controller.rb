@@ -8,16 +8,16 @@ class CASino::TwoFactorAuthenticatorsController < CASino::ApplicationController
   before_action :ensure_signed_in
 
   def new
-    @two_factor_authenticator = current_user.two_factor_authenticators.create! secret: ROTP::Base32.random_base32
+    @two_factor_authenticator = CASino::TwoFactorAuthenticator.create!(user_id: current_user.id, secret: ROTP::Base32.random_base32)
   end
 
   def create
-    @two_factor_authenticator = current_user.two_factor_authenticators.where(id: params[:id]).first
+    @two_factor_authenticator = CASino::TwoFactorAuthenticator.get(params[:id])
     validation_result = validate_one_time_password(params[:otp], @two_factor_authenticator)
     case
     when validation_result.success?
-      current_user.two_factor_authenticators.where(active: true).delete_all
-      @two_factor_authenticator.update_attribute(:active, true)
+      CASino::TwoFactorAuthenticator.by_user_id_and_active.key([current_user.id, true]).each {|tfa| tfa.destroy}
+      @two_factor_authenticator.update_attributes(active: true)
       flash[:notice] = I18n.t('two_factor_authenticators.successfully_activated')
       redirect_to sessions_path
     when validation_result.error_code == 'INVALID_OTP'
@@ -30,9 +30,9 @@ class CASino::TwoFactorAuthenticatorsController < CASino::ApplicationController
   end
 
   def destroy
-    authenticators = current_user.two_factor_authenticators.where(id: params[:id])
-    if authenticators.any?
-      authenticators.first.destroy
+    authenticator = CASino::TwoFactorAuthenticator.get(params[:id])
+    if(authenticator && authenticator.user_id = current_user.id)
+      authenticator.destroy
       flash[:notice] = I18n.t('two_factor_authenticators.successfully_deleted')
     end
     redirect_to sessions_path

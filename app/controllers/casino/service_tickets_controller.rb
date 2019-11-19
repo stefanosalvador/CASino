@@ -17,6 +17,6 @@ class CASino::ServiceTicketsController < CASino::ApplicationController
 
   private
   def load_service_ticket
-    @service_ticket = CASino::ServiceTicket.where(ticket: params[:ticket]).first if params[:service].present?
+    @service_ticket = CASino::ServiceTicket.by_ticket.key(params[:ticket]).first if params[:service].present?
   end
 end

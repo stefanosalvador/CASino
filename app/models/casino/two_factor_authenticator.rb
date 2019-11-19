@@ -1,11 +1,25 @@
-
 class CASino::TwoFactorAuthenticator < CASino::ApplicationRecord
-  belongs_to :user
 
-  scope :active, -> { where(active: true) }
+  property :secret,  String
+  property :active,  String, default: false
+  property :user_id, String
+  rw_timestamps!
+
+  belongs_to :user, class_name: 'CASino::User'
+
+  design do
+    view :by_active
+    view :by_user_id
+    view :by_user_id_and_active
+    view :by_created_at_and_active
+  end
+
+  def self.active
+    self.by_active.key(true)
+  end
 
   def self.cleanup
-    where(['(created_at < ?) AND active = ?', lifetime.ago, false]).delete_all
+    self.by_created_at_and_active.startkey(["", false]).endkey([lifetime.ago, false]).each { |tfa| tfa.destroy }
   end
 
   def self.lifetime
@@ -13,6 +27,6 @@ class CASino::TwoFactorAuthenticator < CASino::ApplicationRecord
   end
 
   def expired?
-    !active? && (Time.now - (created_at || Time.now)) > self.class.lifetime
+    !active && (Time.now - (created_at || Time.now)) > self.class.lifetime
   end
 end

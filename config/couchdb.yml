@@ -1,0 +1,15 @@
+default: &default
+  protocol: 'http'
+  host: localhost
+  port: 5984
+  prefix: casino_test
+  suffix: ''
+
+development:
+  <<: *default
+
+production:
+  <<: *default
+
+test:
+  <<: *default

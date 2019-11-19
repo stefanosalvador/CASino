@@ -6,27 +6,48 @@ class CASino::TicketGrantingTicket < CASino::ApplicationRecord
 
   self.ticket_prefix = 'TGC'.freeze
 
-  belongs_to :user
-  has_many :service_tickets, dependent: :destroy
+  property :user_agent, String
+  property :awaiting_two_factor_authentication, TrueClass, default: false
+  property :long_term,  TrueClass, default: false
+  property :user_ip,    String
 
-  scope :active, -> { where(awaiting_two_factor_authentication: false).order('updated_at DESC') }
+  belongs_to :user, class_name: 'CASino::User'
+
+  design do
+    view :by_user_id
+    view :by_awaiting_two_factor_authentication
+    view :by_user_id_and_awaiting_two_factor_authentication
+    view :by_created_at
+    view :by_user_id_and_created_at
+  end
+
+  # has_many implementation
+  def service_tickets
+    CASino::ServiceTicket.by_ticket_granting_ticket_id.key(id)
+  end
+  # dependent: :destroy implementation
+  after_destroy do |tgt|
+    tgt.service_tickets.each {|st| st.destroy}
+  end
+
+  def self.active
+    self.by_awaiting_two_factor_authentication.key(false).all.sort_by {|t| t.updated_at}.reverse!
+  end
+
+  def self.active_by_user(user)
+    self.by_user_id_and_awaiting_two_factor_authentication.key([user.id, false]).all.sort_by {|t| t.updated_at}.reverse!
+  end
 
   def self.cleanup(user = nil)
-    if user.nil?
-      base = self
-    else
-      base = user.ticket_granting_tickets
+    self.by_created_at.endkey(CASino.config.two_factor_authenticator[:timeout].seconds.ago).each do |tgt|
+      tgt.destroy if(tgt.awaiting_two_factor_authentication == true && (user.nil? || user.id == tgt.user_id))
     end
-    tgts = base.where([
-      '(created_at < ? AND awaiting_two_factor_authentication = ?) OR (created_at < ? AND long_term = ?) OR created_at < ?',
-      CASino.config.two_factor_authenticator[:timeout].seconds.ago,
-      true,
-      CASino.config.ticket_granting_ticket[:lifetime].seconds.ago,
-      false,
-      CASino.config.ticket_granting_ticket[:lifetime_long_term].seconds.ago
-    ])
-    CASino::ServiceTicket.where(ticket_granting_ticket_id: tgts).destroy_all
-    tgts.destroy_all
+    self.by_created_at.endkey(CASino.config.ticket_granting_ticket[:lifetime].seconds.ago).each do |tgt|
+      tgt.destroy if(tgt.long_term == false && (user.nil? || user.id == tgt.user_id))
+    end
+    self.by_created_at.endkey(CASino.config.ticket_granting_ticket[:lifetime_long_term].seconds.ago).each do |tgt|
+      tgt.destroy if(user.nil? || user.id == tgt.user_id)
+    end
   end
 
   def same_user?(other_ticket)

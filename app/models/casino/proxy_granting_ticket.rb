@@ -1,4 +1,3 @@
-
 class CASino::ProxyGrantingTicket < CASino::ApplicationRecord
   include CASino::ModelConcern::Ticket
 
@@ -6,11 +5,30 @@ class CASino::ProxyGrantingTicket < CASino::ApplicationRecord
 
   before_validation :ensure_iou_present
 
-  validates :ticket, uniqueness: true
-  validates :iou, uniqueness: true
+  property :iou,          String
+  property :pgt_url,      String
+  property :granter_id,   String
+  property :granter_type, String
 
-  belongs_to :granter, polymorphic: true
-  has_many :proxy_tickets, dependent: :destroy
+  validates_uniqueness_of :iou
+
+  design do
+    view :by_granter_id_and_granter_type
+  end
+
+  # belongs_to polymorphic implementation
+  def granter
+    granter_type.constantize.find(granter_id)
+  end
+
+  # has_many implementation
+  def proxy_tickets
+    CASino::ProxyTicket.by_proxy_granting_ticket_id.key(id)
+  end
+  # dependent: :destroy implementation
+  after_destroy do |pgt|
+    pgt.proxy_tickets.each {|pt| pt.destroy}
+  end
 
   private
   def ensure_iou_present

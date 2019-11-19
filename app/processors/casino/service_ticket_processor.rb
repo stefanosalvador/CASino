@@ -19,9 +19,9 @@ module CASino::ServiceTicketProcessor
       Rails.logger.error message
       raise ServiceNotAllowedError, message
     end
-    service_tickets = ticket_granting_ticket.service_tickets
-    service_tickets.where(service: service_url).destroy_all
-    service_tickets.create!({
+    CASino::ServiceTicket.by_ticket_granting_ticket_id.key(ticket_granting_ticket.id).each {|st| st.destroy if(st.service == service_url)}
+    CASino::ServiceTicket.create!({
+      ticket_granting_ticket_id: ticket_granting_ticket.id,
       service: service_url,
       issued_from_credentials: !!options[:credentials_supplied]
     })

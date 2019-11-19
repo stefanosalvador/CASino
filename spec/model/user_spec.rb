@@ -35,17 +35,17 @@ describe CASino::User do
   
   describe '#locked?' do
     it 'is true when locked_until is in the future' do
-      user = FactoryGirl.create :user, locked_until: 1.hour.from_now
+      user = FactoryBot.create :user, locked_until: 1.hour.from_now
       expect(user).to be_locked
     end
 
     it 'is false when locked_until is in the past' do
-      user = FactoryGirl.create :user, locked_until: 1.hour.ago
+      user = FactoryBot.create :user, locked_until: 1.hour.ago
       expect(user).to_not be_locked
     end
 
     it 'is false when locked_until is empty' do
-      user = FactoryGirl.create :user, locked_until: nil
+      user = FactoryBot.create :user, locked_until: nil
       expect(user).to_not be_locked
     end
   end
@@ -74,21 +74,21 @@ describe CASino::User do
     end
 
     context 'when the maximum of attempts is reached' do
-      before { FactoryGirl.create_list :login_attempt, 2, successful: false, user: user }
+      before { FactoryBot.create_list :login_attempt, 2, successful: false, user: user }
 
       context 'in a row' do
         it { is_expected.to eq true }
       end
 
       context 'but the last attempt was successful' do
-        before { FactoryGirl.create :login_attempt, successful: true, user: user }
+        before { FactoryBot.create :login_attempt, successful: true, user: user }
         it { is_expected.to eq false }
       end
 
       context 'but a successful between' do
         before do
-          FactoryGirl.create :login_attempt, successful: true, user: user
-          FactoryGirl.create :login_attempt, successful: false, user: user
+          FactoryBot.create :login_attempt, successful: true, user: user
+          FactoryBot.create :login_attempt, successful: false, user: user
         end
 
         it { is_expected.to eq false }
@@ -96,7 +96,7 @@ describe CASino::User do
     end
 
     context 'when the user has less then the maximum failed attempts' do
-      before { FactoryGirl.create :login_attempt, successful: false, user: user }
+      before { FactoryBot.create :login_attempt, successful: false, user: user }
       it { is_expected.to eq false }
     end
   end

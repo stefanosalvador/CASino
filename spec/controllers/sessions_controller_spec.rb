@@ -326,7 +326,7 @@ describe CASino::SessionsController do
           end
 
           context 'when the user does not exist yet' do
-            before { CASino::User.destroy_all }
+            before { CASino::User.all.each{|user| user.destroy} }
 
             it 'generates exactly one user' do
               -> { post :create, **request_options }.should change(CASino::User, :count).by(1)
@@ -427,7 +427,7 @@ describe CASino::SessionsController do
             let(:cookie_jar) { HashWithIndifferentAccess.new }
 
             before(:each) do
-              ticket_granting_ticket.update_attributes! long_term: true
+              ticket_granting_ticket.update_attributes long_term: true
               controller.stub(:cookies).and_return(cookie_jar)
             end
 
@@ -489,7 +489,7 @@ describe CASino::SessionsController do
 
       it 'deletes the ticket-granting ticket' do
         get :logout, **request_options
-        CASino::TicketGrantingTicket.where(id: ticket_granting_ticket.id).first.should.nil?
+        CASino::TicketGrantingTicket.get(ticket_granting_ticket.id).should.nil?
       end
 
       it 'renders the logout template' do

@@ -56,29 +56,33 @@ module CASino::SessionsHelper
   end
 
   def user_locked?(username)
-    result = CASino::User.where(username: username)
+    result = CASino::User.by_username.key(username)
 
 
     # If we've never seen this user before, it can't be locked already.
-    return false if result.empty?
+    return false if result.count == 0
 
     # A user is only locked, if all its CASino::Users, from all providers, are locked.
     # Because it might be, that it is locked for one (e.g. legacy) provider, but not for another.
     # So it should still have the chance to login to said other provider.
-    return result.where('locked_until IS NULL or locked_until <= :now', username: username, now: Time.now).empty?
+    locks = 0
+    result.each {|user| locks += 1 if(user.locked_until.nil? || user.locked_until <= Time.now)}
+    return locks == 0
+    #return result.where('locked_until IS NULL or locked_until <= :now', username: username, now: Time.now).empty?
   end
 
   def handle_failed_login(username)
-    CASino::User.where(username: username).each do |user|
+    CASino::User.by_username.key(username).each do |user|
       create_login_attempt(user, false)
       prevent_brute_force(user)
     end
   end
 
   def create_login_attempt(user, successful)
-    user.login_attempts.create! successful: successful,
-                                user_ip: request.ip,
-                                user_agent: request.user_agent
+    CASino::LoginAttempt.create! user_id: user.id,
+                                 successful: successful,
+                                 user_ip: request.ip,
+                                 user_agent: request.user_agent
   end
 
   private
@@ -113,6 +117,6 @@ module CASino::SessionsHelper
   def prevent_brute_force(user)
     return unless user.max_failed_logins_reached?(CASino.config.max_failed_login_attempts)
     lock_timeout_minutes = CASino.config.failed_login_lock_timeout.to_i.minutes
-    user.update locked_until: lock_timeout_minutes.from_now
+    user.update_attributes locked_until: lock_timeout_minutes.from_now
   end
 end

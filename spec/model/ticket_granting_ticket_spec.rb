@@ -18,7 +18,8 @@ describe CASino::TicketGrantingTicket do
       end
 
       it 'deletes depending proxy-granting tickets' do
-        consumed_service_ticket.proxy_granting_tickets.create! ticket: 'PGT-12345', iou: 'PGTIOU-12345', pgt_url: 'bla'
+        CASino::ProxyGrantingTicket.create! granter_id: consumed_service_ticket.id, granter_type: consumed_service_ticket.class.name, ticket: 'PGT-12345', iou: 'PGTIOU-12345', pgt_url: 'bla'
+        #consumed_service_ticket.proxy_granting_tickets.create! ticket: 'PGT-12345', iou: 'PGTIOU-12345', pgt_url: 'bla'
         lambda {
           ticket_granting_ticket.destroy
         }.should change(CASino::ProxyGrantingTicket, :count).by(-1)

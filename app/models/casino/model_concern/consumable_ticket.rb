@@ -3,7 +3,7 @@ module CASino::ModelConcern::ConsumableTicket
 
   module ClassMethods
     def consume(ticket_identifier)
-      ticket = find_by_ticket(ticket_identifier)
+      ticket = by_ticket.key(ticket_identifier).first
       if ticket.nil?
         Rails.logger.info "#{model_name.human} '#{ticket_identifier}' not found"
         false
@@ -12,7 +12,7 @@ module CASino::ModelConcern::ConsumableTicket
         false
       else
         Rails.logger.debug "#{model_name.human} '#{ticket.ticket}' successfully validated"
-        ticket.delete
+        ticket.destroy
         true
       end
     end

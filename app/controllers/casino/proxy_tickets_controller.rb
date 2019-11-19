@@ -12,7 +12,7 @@ class CASino::ProxyTicketsController < CASino::ApplicationController
   end
 
   def create
-    proxy_ticket = @proxy_granting_ticket.proxy_tickets.create!(service: params[:targetService])
+    proxy_ticket = CASino::ProxyTicket.create!(granter_id: @proxy_granting_ticket.id, granter_type: @proxy_granting_ticket.class.name, service: params[:targetService])
     build_proxy_response(true, proxy_ticket: proxy_ticket)
   end
 
@@ -20,9 +20,9 @@ class CASino::ProxyTicketsController < CASino::ApplicationController
   def load_ticket
     @ticket = case params[:ticket]
               when /\APT-/
-                CASino::ProxyTicket.where(ticket: params[:ticket]).first
+                CASino::ProxyTicket.by_ticket.key(params[:ticket]).first
               when /\AST-/
-                CASino::ServiceTicket.where(ticket: params[:ticket]).first
+                CASino::ServiceTicket.by_ticket.key(params[:ticket]).first
               end
   end
 
@@ -39,7 +39,7 @@ class CASino::ProxyTicketsController < CASino::ApplicationController
   end
 
   def load_proxy_granting_ticket
-    @proxy_granting_ticket = CASino::ProxyGrantingTicket.where(ticket: params[:pgt]).first if params[:pgt].present?
+    @proxy_granting_ticket = CASino::ProxyGrantingTicket.by_ticket.key(params[:pgt]).first if params[:pgt].present?
     if @proxy_granting_ticket.nil?
       build_proxy_response(false,
                            error_code: 'BAD_PGT',

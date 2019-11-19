@@ -15,7 +15,9 @@ module CASino::ProxyGrantingTicketProcessor
 
   private
   def contact_callback_server(callback_uri, service_ticket)
-    pgt = service_ticket.proxy_granting_tickets.new({
+    pgt = CASino::ProxyGrantingTicket.new({
+      granter_id: service_ticket.id,
+      granter_type: service_ticket.class.name,
       pgt_url: "#{callback_uri}"
     })
     return unless pgt.valid?

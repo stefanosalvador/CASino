@@ -13,7 +13,8 @@ describe 'Session overview' do
 
     before do
       sign_in
-      login_attempt.touch
+      login_attempt.updated_at = Time.now
+      login_attempt.save
       visit login_attempts_path
     end
 

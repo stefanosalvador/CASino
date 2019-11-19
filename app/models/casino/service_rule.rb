@@ -1,10 +1,24 @@
-
 class CASino::ServiceRule < CASino::ApplicationRecord
+
+  property :enabled, TrueClass, default: true
+  property :order,   Integer, default: 10
+  property :name,    String
+  property :url,     String
+  property :regex,   TrueClass, default: false
+  timestamps!
+
+  validates_uniqueness_of :url
   validates :name, presence: true
-  validates :url, uniqueness: true, presence: true
+  validates :url, presence: true
+
+  design do
+    view :by_enabled
+    view :by_name
+    view :by_url
+  end
 
   def self.allowed?(service_url)
-    rules = self.where(enabled: true)
+    rules = self.by_enabled.key(true)
     if rules.empty? && !CASino.config.require_service_rules
       true
     else

@@ -2,8 +2,18 @@ module CASino::ModelConcern::Ticket
   extend ActiveSupport::Concern
 
   included do
+    property :ticket, String
+    rw_timestamps!
+  
+    validates :ticket, presence: true
+    validates_uniqueness_of :ticket
+    
+    design do
+      view :by_ticket
+      view :by_created_at
+    end
+  
     before_validation :ensure_ticket_present
-    validates :ticket, uniqueness: true
     class_attribute :ticket_prefix
   end
 

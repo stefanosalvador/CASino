@@ -9,9 +9,9 @@ class CASino::SessionsController < CASino::ApplicationController
   before_action :ensure_signed_in, only: [:index, :destroy]
 
   def index
-    @ticket_granting_tickets = current_user.ticket_granting_tickets.active
-    @two_factor_authenticators = current_user.two_factor_authenticators.active
-    @login_attempts = current_user.login_attempts.order(created_at: :desc).first(5)
+    @ticket_granting_tickets = CASino::TicketGrantingTicket.active_by_user(current_user)
+    @two_factor_authenticators = CASino::TwoFactorAuthenticator.by_user_id_and_active.key([current_user.id, true]).all
+    @login_attempts = CASino::LoginAttempt.by_user_id_and_created_at(descending: true).key([current_user.id, ""]).limit(5).all
   end
 
   def new
@@ -33,16 +33,15 @@ class CASino::SessionsController < CASino::ApplicationController
   end
 
   def destroy
-    tickets = current_user.ticket_granting_tickets.where(id: params[:id])
-    tickets.first.destroy if tickets.any?
+    ticket = CASino::TicketGrantingTicket.get(params[:id])
+    ticket.destroy if(ticket && ticket.user_id != current_user.id)
     redirect_to sessions_path
   end
 
   def destroy_others
-    current_user
-      .ticket_granting_tickets
-      .where('id != ?', current_ticket_granting_ticket.id)
-      .destroy_all if signed_in?
+    CASino::TicketGrantingTicket.by_user_id.key(current_user.id).each do |tgt|
+      tgt.destroy if(tgt.nil? || tgt.id != current_ticket_granting_ticket.id)
+    end
     redirect_to params[:service].present? ? params[:service] : sessions_path
   end
 
@@ -57,7 +56,7 @@ class CASino::SessionsController < CASino::ApplicationController
   def validate_otp
     validation_result = validate_one_time_password(params[:otp], @ticket_granting_ticket.user.active_two_factor_authenticator)
     return flash.now[:error] = I18n.t('validate_otp.invalid_otp') unless validation_result.success?
-    @ticket_granting_ticket.update_attribute(:awaiting_two_factor_authentication, false)
+    @ticket_granting_ticket.update_attributes(awaiting_two_factor_authentication: false)
     set_tgt_cookie(@ticket_granting_ticket)
     handle_signed_in(@ticket_granting_ticket)
   end

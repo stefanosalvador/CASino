@@ -4,7 +4,7 @@ module CASino::TicketGrantingTicketProcessor
   include CASino::BrowserProcessor
 
   def find_valid_ticket_granting_ticket(ticket, user_agent, options = {})
-    tgt = CASino::TicketGrantingTicket.where(ticket: ticket).first
+    tgt = CASino::TicketGrantingTicket.by_ticket.key(ticket).first
     unless tgt.nil?
       if tgt.expired?
         Rails.logger.info "Ticket-granting ticket expired (Created: #{tgt.created_at})"
@@ -15,7 +15,7 @@ module CASino::TicketGrantingTicketProcessor
         nil
       elsif same_browser?(tgt.user_agent, user_agent)
         tgt.user_agent = user_agent
-        tgt.touch
+        tgt.updated_at = Time.now
         tgt.save!
         tgt
       else
@@ -29,7 +29,8 @@ module CASino::TicketGrantingTicketProcessor
     user_data = authentication_result[:user_data]
     user = load_or_initialize_user(authentication_result[:authenticator], user_data[:username], user_data[:extra_attributes])
     cleanup_expired_ticket_granting_tickets(user)
-    user.ticket_granting_tickets.create!({
+    CASino::TicketGrantingTicket.create!({
+      user_id: user.id,
       awaiting_two_factor_authentication: !user.active_two_factor_authenticator.nil?,
       user_agent: user_agent,
       user_ip: user_ip,
@@ -38,9 +39,8 @@ module CASino::TicketGrantingTicketProcessor
   end
 
   def load_or_initialize_user(authenticator, username, extra_attributes)
-    user = CASino::User
-      .where(authenticator: authenticator, username: username)
-      .first_or_initialize
+    user = CASino::User.by_username_and_authenticator.key([username, authenticator]).first
+    user = CASino::User.new(authenticator: authenticator, username: username) if user.nil? 
     user.extra_attributes = extra_attributes
     user.save!
     return user

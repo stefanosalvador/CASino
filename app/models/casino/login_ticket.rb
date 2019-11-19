@@ -5,7 +5,7 @@ class CASino::LoginTicket < CASino::ApplicationRecord
   self.ticket_prefix = 'LT'.freeze
 
   def self.cleanup
-    where(['created_at < ?', CASino.config.login_ticket[:lifetime].seconds.ago]).delete_all
+    by_created_at.endkey(CASino.config.login_ticket[:lifetime].seconds.ago).each { |tk| tk.destroy }
   end
 
   def expired?

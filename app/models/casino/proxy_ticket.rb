@@ -5,16 +5,31 @@ class CASino::ProxyTicket < CASino::ApplicationRecord
 
   self.ticket_prefix = 'PT'.freeze
 
-  validates :ticket, uniqueness: true
-  belongs_to :proxy_granting_ticket
-  has_many :proxy_granting_tickets, as: :granter, dependent: :destroy
+  property :service,  String
+  property :consumed, TrueClass, default: false
+  
+  belongs_to :proxy_granting_ticket, class_name: 'CASino::ProxyGrantingTicket'
+
+  design do
+    view :by_proxy_granting_ticket_id
+    view :by_created_at_and_consumed
+  end
+
+  # has_many polymorphic implementation
+  def proxy_granting_tickets
+    CASino::ProxyGrantingTicket.by_granter_id_and_granter_type.key([id, self.class.name])
+  end
+  # dependent: :destroy implementation
+  after_destroy do |st|
+    st.proxy_granting_tickets.each {|t| t.destroy}
+  end
 
   def self.cleanup_unconsumed
-    where(['created_at < ? AND consumed = ?', CASino.config.proxy_ticket[:lifetime_unconsumed].seconds.ago, false]).destroy_all
+    self.by_created_at_and_consumed.startkey(["", false]).endkey([CASino.config.proxy_ticket[:lifetime_unconsumed].seconds.ago, false]).each {|pt| puts "destroy #{pt.ticket}"; pt.destroy}
   end
 
   def self.cleanup_consumed
-    where(['created_at < ? AND consumed = ?', CASino.config.proxy_ticket[:lifetime_consumed].seconds.ago, true]).destroy_all
+    self.by_created_at_and_consumed.startkey(["", true]).endkey([CASino.config.proxy_ticket[:lifetime_consumed].seconds.ago, true]).each {|pt| pt.destroy}
   end
 
   def expired?
@@ -23,6 +38,6 @@ class CASino::ProxyTicket < CASino::ApplicationRecord
     else
       CASino.config.proxy_ticket[:lifetime_unconsumed]
     end
-    (Time.now - (self.created_at || Time.now)) > lifetime
+    (Time.now - (created_at || Time.now)) > lifetime
   end
 end

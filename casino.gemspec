@@ -26,6 +26,7 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency 'appraisal', '~> 2.2'
 
+  s.add_runtime_dependency 'couchrest_model', '= 2.2.0.beta4'
   s.add_runtime_dependency 'addressable', '>= 2.3'
   s.add_runtime_dependency 'faraday', '>= 0.8'
   s.add_runtime_dependency 'grape', '>= 0.8'
