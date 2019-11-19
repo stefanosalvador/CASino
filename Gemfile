@@ -8,6 +8,7 @@ group :test do
   gem 'rake', '>= 10.0'
   gem 'rspec-its', '>= 1.0'
   gem 'webmock', '>= 1.9'
+  gem "byebug"
 end
 
 # Specify your gem's dependencies in groupify.gemspec

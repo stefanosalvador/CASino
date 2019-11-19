@@ -1,3 +1,5 @@
+require 'spec_helper'
+
 describe CASino::ServiceTicketsController do
   routes { CASino::Engine.routes }
 

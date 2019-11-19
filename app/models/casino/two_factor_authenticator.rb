@@ -1,7 +1,7 @@
 class CASino::TwoFactorAuthenticator < CASino::ApplicationRecord
 
   property :secret,  String
-  property :active,  String, default: false
+  property :active,  TrueClass, default: false
   property :user_id, String
   rw_timestamps!
 
@@ -14,12 +14,16 @@ class CASino::TwoFactorAuthenticator < CASino::ApplicationRecord
     view :by_created_at_and_active
   end
 
+  def active?
+    return active == true
+  end
+
   def self.active
     self.by_active.key(true)
   end
 
   def self.cleanup
-    self.by_created_at_and_active.startkey(["", false]).endkey([lifetime.ago, false]).each { |tfa| tfa.destroy }
+    self.by_active.key(false).each {|tfa| tfa.destroy if(tfa.created_at < lifetime.ago)}
   end
 
   def self.lifetime

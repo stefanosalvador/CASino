@@ -12,7 +12,7 @@ class CASino::ProxyTicketsController < CASino::ApplicationController
   end
 
   def create
-    proxy_ticket = CASino::ProxyTicket.create!(granter_id: @proxy_granting_ticket.id, granter_type: @proxy_granting_ticket.class.name, service: params[:targetService])
+    proxy_ticket = CASino::ProxyTicket.create!(proxy_granting_ticket_id: @proxy_granting_ticket.id, service: params[:targetService])
     build_proxy_response(true, proxy_ticket: proxy_ticket)
   end
 

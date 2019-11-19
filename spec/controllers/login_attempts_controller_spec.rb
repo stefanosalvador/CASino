@@ -20,7 +20,7 @@ describe CASino::LoginAttemptsController do
       it 'assigns current users login attempts @login_attempts' do
         get :index
 
-        expect(assigns(:login_attempts)).to eq([login_attempt.all, old_login_attempt.all])
+        expect(assigns(:login_attempts)).to eq([login_attempt, old_login_attempt])
       end
     end
 

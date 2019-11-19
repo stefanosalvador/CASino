@@ -1,0 +1,2 @@
+rspec ./spec/controllers/sessions_controller_spec.rb:576 # CASino::SessionsController GET "index" with an existing ticket-granting ticket two-factor authenticator settings with a two-factor authenticator registered does assign the two-factor authenticator
+rspec ./spec/controllers/login_attempts_controller_spec.rb:20 # CASino::LoginAttemptsController GET #index with ticket granting ticket assigns current users login attempts @login_attempts

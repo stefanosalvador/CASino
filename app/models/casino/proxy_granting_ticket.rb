@@ -20,6 +20,11 @@ class CASino::ProxyGrantingTicket < CASino::ApplicationRecord
   def granter
     granter_type.constantize.find(granter_id)
   end
+  def granter=(granter)
+    self.granter_id = granter.id
+    self.granter_type = granter.class
+    self.save
+  end
 
   # has_many implementation
   def proxy_tickets

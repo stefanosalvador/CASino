@@ -13,6 +13,7 @@ class CASino::TwoFactorAuthenticatorsController < CASino::ApplicationController
 
   def create
     @two_factor_authenticator = CASino::TwoFactorAuthenticator.get(params[:id])
+    @two_factor_authenticator = nil if(@two_factor_authenticator.user_id != current_user.id)
     validation_result = validate_one_time_password(params[:otp], @two_factor_authenticator)
     case
     when validation_result.success?
@@ -31,7 +32,7 @@ class CASino::TwoFactorAuthenticatorsController < CASino::ApplicationController
 
   def destroy
     authenticator = CASino::TwoFactorAuthenticator.get(params[:id])
-    if(authenticator && authenticator.user_id = current_user.id)
+    if(authenticator && authenticator.user_id == current_user.id)
       authenticator.destroy
       flash[:notice] = I18n.t('two_factor_authenticators.successfully_deleted')
     end

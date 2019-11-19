@@ -656,7 +656,7 @@ describe CASino::SessionsController do
 
       it 'deletes the ticket-granting ticket' do
         delete :destroy, **request_options
-        CASino::TicketGrantingTicket.where(id: params[:id]).length.should == 0
+        CASino::TicketGrantingTicket.get(params[:id]).should be_nil
       end
 
       it 'redirects to the session overview' do

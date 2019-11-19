@@ -11,7 +11,7 @@ class CASino::SessionsController < CASino::ApplicationController
   def index
     @ticket_granting_tickets = CASino::TicketGrantingTicket.active_by_user(current_user)
     @two_factor_authenticators = CASino::TwoFactorAuthenticator.by_user_id_and_active.key([current_user.id, true]).all
-    @login_attempts = CASino::LoginAttempt.by_user_id_and_created_at(descending: true).key([current_user.id, ""]).limit(5).all
+    @login_attempts = CASino::LoginAttempt.by_user_id_and_created_at.startkey([current_user.id, ""]).endkey([current_user.id, Time.now]).descending.limit(5).all
   end
 
   def new
@@ -34,13 +34,15 @@ class CASino::SessionsController < CASino::ApplicationController
 
   def destroy
     ticket = CASino::TicketGrantingTicket.get(params[:id])
-    ticket.destroy if(ticket && ticket.user_id != current_user.id)
+    ticket.destroy if(ticket && ticket.user_id == current_user.id)
     redirect_to sessions_path
   end
 
   def destroy_others
-    CASino::TicketGrantingTicket.by_user_id.key(current_user.id).each do |tgt|
-      tgt.destroy if(tgt.nil? || tgt.id != current_ticket_granting_ticket.id)
+    if(signed_in?)
+      CASino::TicketGrantingTicket.by_user_id.key(current_user.id).each do |tgt|
+        tgt.destroy if(tgt.nil? || tgt.id != current_ticket_granting_ticket.id)
+      end
     end
     redirect_to params[:service].present? ? params[:service] : sessions_path
   end
