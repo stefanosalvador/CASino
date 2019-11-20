@@ -3,6 +3,7 @@
     <tr>
       <th class="browser_info"><%= CASino::LoginAttempt.human_attribute_name(:browser_info) %></th>
       <th class="user_ip"><%= CASino::LoginAttempt.human_attribute_name(:user_ip) %></th>
+      <th class="service"><%= CASino::LoginAttempt.human_attribute_name(:service) %></th>
       <th class="created_at"><%= CASino::LoginAttempt.human_attribute_name(:created_at) %></th>
       <th class="successful"><%= CASino::LoginAttempt.human_attribute_name(:successful) %></th>
     </tr>
@@ -15,6 +16,9 @@
         </td>
         <td data-label="<%= CASino::LoginAttempt.human_attribute_name(:user_ip) %>">
           <%= login_attempt.user_ip %>
+        </td>
+        <td data-label="<%= CASino::LoginAttempt.human_attribute_name(:service) %>">
+          <%= login_attempt.service %>
         </td>
         <td data-label="<%= CASino::LoginAttempt.human_attribute_name(:created_at) %>">
           <%= l login_attempt.created_at %>

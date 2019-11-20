@@ -81,6 +81,7 @@ module CASino::SessionsHelper
   def create_login_attempt(user, successful)
     CASino::LoginAttempt.create! user_id: user.id,
                                  successful: successful,
+                                 service: params[:service],
                                  user_ip: request.ip,
                                  user_agent: request.user_agent
   end
